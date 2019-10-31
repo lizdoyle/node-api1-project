@@ -39,34 +39,92 @@ server.get('/', (req, res) => {
     res.send('server is working');
 })
 
-// server.post('/api/users', (req, res) => {
+server.post('/api/users', (req, res) => {
+    const userInfo = req.body;
 
-// })
+    db.insert(userInfo)
+        .then((user) => {
+            res.status(201).json({success: true, user})
+
+        })
+        .catch(err => {
+            if(userInfo === !name || !bio) {
+                res.status(400).json({
+                    errorMessage: "Please provide name and bio for the user." 
+                })
+            }
+            else {
+                res.status(500).json({
+                     error: "There was an error while saving the user to the database" })
+            }
+        })
+
+})
 
 server.get('/api/users', (req, res) => {
     db.find()
-        .then(users => {
-            res.status(200).json(users);
+        .then(user => {
+            res.status(200).json(user);
         })
         .catch(err => {
             res.status(500).json({
                 message: err,
                 success: false
-
             })
         })
 })
 
-// server.get('/api/users/:id', (req, res) => {
-    
-// })
+server.get('/api/users/:id', (req, res) => {
 
-// server.delete('/api/users/:id', (req, res) => {
+    db.findById()
+        .then(user => {
+            res.status(200).json(user)
+        })
+        .catch(err => {
+            if(user === !id){
+                return res.status(404).json({
+                     message: "The user with the specified ID does not exist." })
+            }
+            else{
+                res.status(500).end().json({
+                     error: "The user information could not be retrieved." })
+            }
+        })
     
-// })
+})
 
-// server.put('/api/users/:id', (req, res) => {
+server.delete('/api/users/:id', (req, res) => {
+    db.remove()
+        .then(user => {
+            res.status(200).json(user)
+        })
+        .catch(err => {
+            if(user === !id){
+                return res.status(404).json({
+                     message: "The user with the specified ID does not exist." })
+            }
+            else {
+                res.status(500).end().json({ error: "The user could not be removed" })
+            }
+        })
+})
+
+server.put('/api/users/:id', (req, res) => {
+    db.update()
+        .then(user => {
+            res.status(200).json(user)
+        })
+        .catch(err => {
+            if(user === !id){
+                return res.status(404).json({
+                    message: "The user with the specified ID does not exist." })
+            }
+            else {
+                res.status(500).end().json({
+                     error: "The user information could not be modified." })
+            }
+        })
     
-// })
+})
 
 console.log("hello world")
