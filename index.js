@@ -19,6 +19,8 @@ const db = require('./data/db');
 // html version with plain txt is commented out. working code is using express
 
 const server = express();
+//middleware to turn stringifird json body to work in post request
+server.use(express.json())
 
 
 //ROUTE HANDLER:
@@ -31,26 +33,27 @@ server.get('/', (req, res) => {
     res.send('server is working');
 })
 
+
+//fixed post request
 server.post('/api/users', (req, res) => {
     const userInfo = req.body;
 
-    db.insert(userInfo)
-        .then((user) => {
-            res.status(201).json({success: true, user})
+    console.log("userInfo", userInfo);
 
-        })
-        .catch(err => {
-            if(userInfo === !name || !bio) {
-                res.status(400).json({
-                    errorMessage: "Please provide name and bio for the user." 
-                })
-            }
-            else {
-                res.status(500).json({
-                     error: "There was an error while saving the user to the database" })
-            }
-        })
+    //must pull the user name and info from the body 
 
+       if (!userInfo.name || !userInfo.bio) {
+           res.status(400).json({ errorMessage: "Please provide name and bio for the user." })
+       }
+       else {
+           db.insert(userInfo)
+           .then(user => {
+               res.status(201).json(user);
+           })
+           .catch(err => {
+               res.status(500).json({ error: "There was an error while saving the user to the database" })
+           })
+    }
 })
 
 
@@ -65,14 +68,19 @@ server.get('/api/users', (req, res) => {
         })
 })
 
+
+//get request working via postman
 server.get('/api/users/:id', (req, res) => {
 
-    db.findById()
+    const id = req.params.id;
+
+
+    db.findById(id)
         .then(user => {
             return res.status(200).json(user)
         })
         .catch(err => {
-            if(user === !id){
+            if(!id){
                 return res.status(404).json({
                      message: "The user with the specified ID does not exist." })
             }
@@ -105,6 +113,8 @@ server.delete('/api/users/:id', (req, res) => {
 })
 
 server.put('/api/users/:id', (req, res) => {
+
+
     db.update()
         .then(user => {
             res.status(200).json(user)
